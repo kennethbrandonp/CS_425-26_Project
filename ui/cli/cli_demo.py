@@ -5,9 +5,13 @@ from systems.profilemanager import ProfileManager
 class SpyOT:
     def __init__(self):
         print("Welcome to SpyOT! The IoT Network Manager.")
-        self.systems = {"profiles": ProfileManager()}
+        self.profile_manager = ProfileManager()
+
+        self.systems = {"profiles": self.profile_manager,
+                        "networks": None,
+                        "security": None}
+
         self.curr_state = MainMenu(self.systems["profiles"])
-        self.profile_manager = self.systems["profiles"]
 
     def mainloop(self):
         while True:
