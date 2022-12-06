@@ -1,7 +1,79 @@
 from tkinter import *
+from tkinter import ttk
 import constants as preset
+import time
 
 
+class SpyOT:
+    def __init__(self):
+        self.root = Tk()
+        self.configure_root()
+
+        self.frames = {
+            "titleScreen": Title(self.root),
+            "mainMenu": ttk.Frame(self.root, padding="3"),
+            "createProfile": ttk.Frame(self.root, padding="3")
+        }
+        self.current_frame = self.frames["titleScreen"]
+
+    def mainloop(self):
+        self.current_frame.display_frame()
+        self.root.mainloop()
+
+    def set_title(self, new_title):
+        self.root.title(new_title)
+
+    def configure_root(self):
+        self.root.geometry(preset.default_geometry)
+        self.root.title(preset.title)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+
+
+class Title:
+    def __init__(self, root):
+        self.root = root
+        style = ttk.Style()
+        style.configure('Danger.TFrame', background='grey', borderwidth=5)
+        self.frame = ttk.Frame(self.root, padding=3, style='Danger.TFrame')
+        self.set_frame()
+        self.buttons = []
+        self.label = None
+        self.set_widgets()
+
+    def set_frame(self):
+
+        self.frame.columnconfigure(0, weight=1)
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.columnconfigure(2, weight=1)
+        self.frame.rowconfigure(0, weight=1)
+        self.frame.rowconfigure(1, weight=1)
+        self.frame.rowconfigure(2, weight=1)
+        self.frame.rowconfigure(3, weight=1)
+
+    def display_frame(self):
+        self.frame.grid(column=0, row=0, sticky=N+E+S+W)
+        self.display_widgets()
+
+    def remove_frame(self):
+        self.frame.grid_remove()
+
+    def display_widgets(self):
+        self.label.grid(column=1, row=0)
+        for i, button in enumerate(self.buttons):
+            button.grid(column=1, row=i+1)
+
+    def set_widgets(self):
+        self.label = ttk.Label(self.frame, text=self.root.title(),
+                               borderwidth=5, relief="raised")
+
+        self.buttons.append(ttk.Button(self.frame, text="Create Profile",
+                                       state="!disabled", command=self.remove_frame))
+        self.buttons.append(ttk.Button(self.frame, text="Select Profile", state="disabled"))
+        self.buttons.append(ttk.Button(self.frame, text="Exit",
+                                       state="!disabled", command=self.root.quit))
+
+"""
 class SpyOT(Frame):
     # root = Tk()
     def __init__(self, master=None):
@@ -33,7 +105,7 @@ class LabelManager:
         self.create_labels()
 
     def create_labels(self):
-        self.title_label = Label(self.frame, text="SpyOT",
+        self.title_label = Label(self.frame, text=preset.title,
                                  font=(preset.default_font,
                                        preset.default_text_size,
                                        "bold"))
@@ -71,6 +143,9 @@ class ButtonManager:
                                   command=self.frame.quit,
                                   relief="raised")
         self.quit_button.grid(row=2, column=0)
+
+"""
+
 
 def main():
     demo = SpyOT()
