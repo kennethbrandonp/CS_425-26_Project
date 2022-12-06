@@ -1,23 +1,47 @@
 from tkinter import *
 from tkinter import ttk
 import constants as preset
-import time
 
 
 class SpyOT:
+    """
+    Structure:
+        Controller (class SpyOT):
+            - Contains the calls to the front-end and back-end methods
+            - Instantiates all program scenes and initiates the front-end with them
+            - Handles the communication between the front-end and back-end
+
+            Back-end (class modelManager) :
+                - Updates the internal data models and program state in response to the users input
+                - Handles the processing of stored data and responds to front-end requests for that data
+
+            Front-end (class sceneManager):
+                - Displays the current scene
+                - Reads input from the user
+                - Requests data from the back-end according to the current scenes needs
+                - Reads input from the user and, if necessary, sends that input to the back-end
+                - Updates the current scene depending on user input and back-end updates
+
+
+    Scene: Window screens in our application
+        - Title_Scene: Contains the title screen which prompts the user to select/create a profile
+        - Create_Profile_Scene: Contains entry fields for the user to fill in their profile data
+        - Select_Profile_Scene: Contains a list of saved profiles that the user may select
+        - Profile_Main_Menu: Contains the main menu for a selected profile and displays their
+            notifications and network summary
+        - Profile_Security: Contains the security screen for a selected profile where the user's
+            device summaries and configurations are available
+        - Profile_Settings: Contains the settings screen with various options for the selected
+            profile to choose and adjust
+    """
+
     def __init__(self):
         self.root = Tk()
         self.configure_root()
-
-        self.frames = {
-            "titleScreen": Title(self.root),
-            "mainMenu": ttk.Frame(self.root, padding="3"),
-            "createProfile": ttk.Frame(self.root, padding="3")
-        }
-        self.current_frame = self.frames["titleScreen"]
+        self.current_scene = Title(self)
 
     def mainloop(self):
-        self.current_frame.display_frame()
+        self.current_scene.display_frame()
         self.root.mainloop()
 
     def set_title(self, new_title):
@@ -31,8 +55,9 @@ class SpyOT:
 
 
 class Title:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self, SpyOT):
+        self.SpyOT = SpyOT
+        self.root = SpyOT.root
         style = ttk.Style()
         style.configure('Danger.TFrame', background='grey', borderwidth=5)
         self.frame = ttk.Frame(self.root, padding=3, style='Danger.TFrame')
@@ -42,7 +67,6 @@ class Title:
         self.set_widgets()
 
     def set_frame(self):
-
         self.frame.columnconfigure(0, weight=1)
         self.frame.columnconfigure(1, weight=1)
         self.frame.columnconfigure(2, weight=1)
@@ -52,26 +76,69 @@ class Title:
         self.frame.rowconfigure(3, weight=1)
 
     def display_frame(self):
-        self.frame.grid(column=0, row=0, sticky=N+E+S+W)
+        self.frame.grid(column=0, row=0, sticky=N + E + S + W)
         self.display_widgets()
-
-    def remove_frame(self):
-        self.frame.grid_remove()
 
     def display_widgets(self):
         self.label.grid(column=1, row=0)
         for i, button in enumerate(self.buttons):
-            button.grid(column=1, row=i+1)
+            button.grid(column=1, row=i + 1)
+
+    def remove_frame(self):
+        self.frame.grid_remove()
 
     def set_widgets(self):
         self.label = ttk.Label(self.frame, text=self.root.title(),
                                borderwidth=5, relief="raised")
 
         self.buttons.append(ttk.Button(self.frame, text="Create Profile",
-                                       state="!disabled", command=self.remove_frame))
+                                       state="!disabled",
+                                       command=lambda: self.change_scene("createProfile")))
         self.buttons.append(ttk.Button(self.frame, text="Select Profile", state="disabled"))
         self.buttons.append(ttk.Button(self.frame, text="Exit",
                                        state="!disabled", command=self.root.quit))
+
+    def change_scene(self, next_scene):
+        self.remove_frame()
+        if next_scene == "createProfile":
+            self.SpyOT.current_scene = CreateProfile(self.SpyOT)
+            self.SpyOT.current_scene.display_frames()
+
+
+class CreateProfile:
+    def __init__(self, SpyOT):
+        self.root = SpyOT.root
+        self.set_frames()
+
+        self.buttons = []
+        self.label = None
+        self.set_widgets()
+
+    def set_frames(self):
+        style = ttk.Style()
+        style.configure('Danger.TFrame', background='grey', borderwidth=5)
+
+        self.state_frame = ttk.Frame(self.root, padding=3, style="Danger.TFrame")
+        self.state_frame.columnconfigure(0, weight=1)
+        self.rows = 9
+        for i in range(self.rows):
+            self.state_frame.rowconfigure(i, weight=1)
+
+        self.header = ttk.Frame(self.state_frame, padding=3, style="Danger.TFrame")
+        self.header.columnconfigure(0, weight=1)
+        self.header.rowconfigure(0, weight=1)
+
+        self.body = ttk.Frame(self.state_frame, padding=3)
+        self.body.columnconfigure(0, weight=1)
+        self.body.rowconfigure(0, weight=1)
+
+    def set_widgets(self):
+        pass
+
+    def display_frames(self):
+        self.state_frame.grid(column=0, row=0, sticky=N + E + S + W)
+        self.header.grid(column=0, row=0, sticky=N+E+W+S)
+        self.body.grid(column=0, row=1, rowspan=self.rows, sticky=N+E+W+S)
 
 """
 class SpyOT(Frame):
