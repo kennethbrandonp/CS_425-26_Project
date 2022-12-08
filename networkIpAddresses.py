@@ -11,17 +11,26 @@ class Network(object):
         ip = '192.168.1.1' 
         self.ip = ip
         self.host_list_size = None
+        self.host_list = None
 
     def networkCheck(self):
         if(self.host_list_size == 0):
             if (self.ip == '192.168.1.1'):
                 self.ip = '192.168.1.0'
+                self.networkPatch()
 
             elif(self.ip == '192.168.1.0'):
                 self.ip = '192.168.1.1'
+                self.networkPatch()
+    
+    def networkPatch(self):
+        network = self.ip + '/24'
+        nm = nmap.PortScanner() 
+        nm.scan(hosts = network, arguments = '-sn')
+        self.host_list = [(x, nm[x] ['status'] ['state']) for x in nm.all_hosts()]
 
-    def networkCounter(self, host):
-        self.host_list_size = len(host) #Counts the amount of connected devices in a network.
+    def networkCounter(self):
+        self.host_list_size = len(self.host_list) #Counts the amount of connected devices in a network.
 
     def networkScanner(self):
         if len(self.ip) == 0:
@@ -35,13 +44,13 @@ class Network(object):
             nm.scan(hosts = network, arguments = '-sn')
             
             #Stores a list of every ip address on the network into host_list
-            host_list = [(x, nm[x] ['status'] ['state']) for x in nm.all_hosts()]
+            self.host_list = [(x, nm[x] ['status'] ['state']) for x in nm.all_hosts()]
 
-            self.networkCounter(host_list)
+            self.networkCounter()
 
             self.networkCheck()
 
-            for host, up in host_list:
+            for host, up in self.host_list:
                 if(host == self.ip):
                     print("\n List of connected devices:  ")
                     print("_______________________________")
