@@ -7,13 +7,13 @@ class SpyOT:
     """
     Structure:
         Controller (class SpyOT):
-            - Contains the calls to the front-end and back-end methods
-            - Instantiates all program scenes and initiates the front-end with them
-            - Handles the communication between the front-end and back-end
+            - Contains the calls to the frontend and back-end methods
+            - Instantiates all program scenes and initiates the frontend with them
+            - Handles the communication between the frontend and back-end
 
             Back-end (class modelManager) :
                 - Updates the internal data models and program state in response to the users input
-                - Handles the processing of stored data and responds to front-end requests for that data
+                - Handles the processing of stored data and responds to frontend requests for that data
 
             Front-end (class sceneManager):
                 - Displays the current scene
@@ -38,7 +38,11 @@ class SpyOT:
     def __init__(self):
         self.root = Tk()
         self.configure_root()
-        self.current_scene = Title(self)
+        self.current_scene = None
+        self.scenes = {
+            "title": Title(self),
+        }
+        self.current_scene = self.scenes["title"]
 
     def mainloop(self):
         self.current_scene.display_frame()
@@ -55,9 +59,9 @@ class SpyOT:
 
 
 class Title:
-    def __init__(self, SpyOT):
-        self.SpyOT = SpyOT
-        self.root = SpyOT.root
+    def __init__(self, base):
+        self.base = base
+        self.root = base.root
         style = ttk.Style()
         style.configure('Danger.TFrame', background='grey', borderwidth=5)
         self.frame = ttk.Frame(self.root, padding=3, style='Danger.TFrame')
@@ -68,8 +72,6 @@ class Title:
 
     def set_frame(self):
         self.frame.columnconfigure(0, weight=1)
-        self.frame.columnconfigure(1, weight=1)
-        self.frame.columnconfigure(2, weight=1)
         self.frame.rowconfigure(0, weight=1)
         self.frame.rowconfigure(1, weight=1)
         self.frame.rowconfigure(2, weight=1)
@@ -80,9 +82,9 @@ class Title:
         self.display_widgets()
 
     def display_widgets(self):
-        self.label.grid(column=1, row=0)
+        self.label.grid(column=0, row=0)
         for i, button in enumerate(self.buttons):
-            button.grid(column=1, row=i + 1)
+            button.grid(column=0, row=i + 1)
 
     def remove_frame(self):
         self.frame.grid_remove()
@@ -101,13 +103,16 @@ class Title:
     def change_scene(self, next_scene):
         self.remove_frame()
         if next_scene == "createProfile":
-            self.SpyOT.current_scene = CreateProfile(self.SpyOT)
-            self.SpyOT.current_scene.display_frames()
+            self.base.current_scene = CreateProfile(self.base)
+            self.base.current_scene.display_frames()
 
 
 class CreateProfile:
-    def __init__(self, SpyOT):
-        self.root = SpyOT.root
+    def __init__(self, base):
+        self.root = base.root
+        self.base = base
+        self.frames = []
+        self.rows = 6
         self.set_frames()
 
         self.buttons = []
@@ -116,29 +121,80 @@ class CreateProfile:
 
     def set_frames(self):
         style = ttk.Style()
-        style.configure('Danger.TFrame', background='grey', borderwidth=5)
+        style.configure('Danger.TFrame', background='grey')
 
         self.state_frame = ttk.Frame(self.root, padding=3, style="Danger.TFrame")
         self.state_frame.columnconfigure(0, weight=1)
-        self.rows = 9
-        for i in range(self.rows):
-            self.state_frame.rowconfigure(i, weight=1)
+        self.state_frame.rowconfigure(0, weight=1)
+        self.state_frame.rowconfigure(1, weight=8)
 
         self.header = ttk.Frame(self.state_frame, padding=3, style="Danger.TFrame")
         self.header.columnconfigure(0, weight=1)
         self.header.rowconfigure(0, weight=1)
 
-        self.body = ttk.Frame(self.state_frame, padding=3)
+        self.body = ttk.Frame(self.state_frame, padding=(3, 12))
         self.body.columnconfigure(0, weight=1)
-        self.body.rowconfigure(0, weight=1)
+        self.body.columnconfigure(1, weight=1)
+        for row in range(self.rows):
+            self.body.rowconfigure(row, weight=1)
 
     def set_widgets(self):
-        pass
+        self.name_label = ttk.Label(self.body, text="Enter Profile Name", background='red', justify='center')
+        self.wifi_label = ttk.Label(self.body, text="Enter Network Name")
+        self.password_label = ttk.Label(self.body, text="Enter Profile Password")
+        user_name = StringVar()
+        user_wifi = StringVar()
+        user_password = StringVar()
+        self.user_entry = ttk.Entry(self.body, textvariable=user_name)
+        self.wifi_entry = ttk.Entry(self.body, width=14, textvariable=user_wifi)
+        self.password_entry = ttk.Entry(self.body, width=14, textvariable=user_password)
+
+        self.submit_button = ttk.Button(self.body, text="Create Profile",
+                                        command=self.create_profile)
+        self.exit_button = ttk.Button(self.body, text="Return to title screen",
+                                      command=lambda: self.change_scene("title"))
 
     def display_frames(self):
         self.state_frame.grid(column=0, row=0, sticky=N + E + S + W)
-        self.header.grid(column=0, row=0, sticky=N+E+W+S)
-        self.body.grid(column=0, row=1, rowspan=self.rows, sticky=N+E+W+S)
+        self.header.grid(column=0, row=0, sticky=N + E + W + S)
+        self.body.grid(rowspan=self.rows - 1, sticky=N + E + W + S)
+        self.display_widgets()
+
+    def display_widgets(self):
+        self.name_label.grid(column=0, row=0, sticky=N+E+W)
+        self.user_entry.grid(column=0, row=1, sticky=N+E+W)
+
+        self.wifi_label.grid(column=0, row=2, sticky=N+E+W)
+        self.wifi_entry.grid(column=0, row=3, sticky=N+E+W)
+
+        self.password_label.grid(column=0, row=4, sticky=N+E+W)
+        self.password_entry.grid(column=0, row=5, sticky=N+E+W)
+
+        self.submit_button.grid(column=0, row=6)
+        self.exit_button.grid(column=1, row=6)
+
+    def remove_frame(self):
+        self.state_frame.grid_remove()
+
+    def change_scene(self, new_scene):
+        self.remove_frame()
+        match new_scene:
+            case "title":
+                self.base.current_scene = self.base.scenes["title"]
+                self.base.current_scene.display_frame()
+
+    def create_profile(self):
+        name, wifi, password = self.user_entry.get(), self.wifi_entry.get(), self.password_entry.get()
+        print(name, wifi, password)
+        # Check if all entries were filled
+        # Check if entry data is valid
+        entry_values = (self.user_entry.get(), self.wifi_entry.get(), self.password_entry.get())
+        pass
+
+
+class SelectProfile:
+    def __init__(self):
+        pass
 
 """
 class SpyOT(Frame):
