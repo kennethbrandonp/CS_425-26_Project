@@ -8,8 +8,8 @@ sources:
 https://tkdocs.com/tutorial/index.html
 https://tkdocs.com/widgets/
 https://www.pythontutorial.net/tkinter/tkinter-grid/
-
 """
+
 
 class SpyOT(Tk):
     def __init__(self, title=preset.title):

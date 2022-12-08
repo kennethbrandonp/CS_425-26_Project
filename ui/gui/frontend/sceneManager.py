@@ -9,6 +9,8 @@ class SceneManager:
     def __init__(self, root):
         self.root = root
         self.configure_root()
+        self.style = ttk.Style()
+        self.style.theme_use('vista')
         self.scenes = {
             "title": TitleScreen(self),
             "home": Home(self),

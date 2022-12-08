@@ -7,9 +7,8 @@ class TitleScreen:
     def __init__(self, base):
         self.base = base
         self.root = self.base.root
+        self.style = self.base.style
 
-        style = ttk.Style()
-        style.theme_use('vista')
         self.scene_frame = ttk.Frame(self.root,
                                      padding=(3, 3, 12, 12))
         self.set_frames()
@@ -19,7 +18,7 @@ class TitleScreen:
         self.scenes = {
             "title": self,
             "createprofile": CreateProfile(self),
-            "selectprofile": SelectProfile(),
+            "selectprofile": SelectProfile(self),
             "settings": None
         }
 
@@ -32,7 +31,8 @@ class TitleScreen:
 
     def change_scene(self, new_scene):
         self.current_scene.remove_content()
-        self.current_scene = new_scene
+        self.current_scene = self.scenes[new_scene]
+        self.current_scene.display_content()
 
     def display_frames(self):
         self.scene_frame.grid(column=0, row=0, sticky=N + E + S + W)
@@ -57,15 +57,17 @@ class TitleScreen:
                                      text=self.root.title())
 
         self.create_profile_button = ttk.Button(self.scene_frame,
-                                                text="Create Profile")
+                                                text="Create Profile",
+                                                command=lambda: self.change_scene("createprofile"))
 
         self.select_profile_button = ttk.Button(self.scene_frame,
-                                                text="Select Profile")
+                                                text="Select Profile",
+                                                command=lambda: self.change_scene("selectprofile"))
 
         self.settings_button = ttk.Button(self.scene_frame,
-                                          text="Settings",)
+                                          text="Settings",
+                                          command=None)
 
         self.exit_button = ttk.Button(self.scene_frame,
                                       text="Exit Program",
                                       command=self.root.quit)
-
