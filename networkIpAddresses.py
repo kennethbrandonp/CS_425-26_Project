@@ -1,4 +1,7 @@
 import nmap, socket
+import sys
+import socket
+from datetime import datetime
 
 class Network(object):
     def __init__(self, ip=''):
@@ -12,6 +15,7 @@ class Network(object):
         self.ip = ip
         self.host_list_size = None
         self.host_list = None
+        self.ip_list = []
 
     def networkCheck(self):
         if(self.host_list_size == 0):
@@ -55,8 +59,40 @@ class Network(object):
                     print("\n List of connected devices:  ")
                     print("_______________________________")
                 else:
-                    print(host)
+                    print(socket.gethostbyaddr(host))
+            #grabs ip addresses from host_list and adds to its list
+            for i in self.host_list:
+                self.ip_list.append(i[0])
+        
+    def P_Scanner(self):
+        try:
+            target = self.ip_list.copy()
+            #Iterate through each ip address and return open ports
+            for x in range(len(target)):
+                print("-" * 50)
+                print("Scanning Target: " + str(target[x]))
+                print("Scanning started at:" + str(datetime.now()))
+                for port in range(1,5): #Change number of sockets that will be scanned
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    socket.setdefaulttimeout(1)
+                    
+                    # returns an error indicator
+                    result = s.connect_ex((str(target[x]),port))
+                    if result ==0:
+                        print("Port {} is open".format(port))   #print port number that is open
+                    s.close() #close port once done and iterate through to next ip address
+                print("-" * 50)
+        except KeyboardInterrupt:
+            print("\n Exiting Program !!!!")
+            sys.exit()
+        except socket.gaierror:
+                print("\n Hostname Could Not Be Resolved !!!!")
+                sys.exit()
+        except socket.error:
+            print("\ Server not responding !!!!")
+            sys.exit()
 
 if __name__ == "__main__":
     network = Network()
-    network.networkScanner()
+    IP_addresses = network.networkScanner()
+    network.P_Scanner()
