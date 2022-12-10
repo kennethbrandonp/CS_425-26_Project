@@ -53,7 +53,8 @@ class CreateProfile:
 
         self.password_label = ttk.Label(self.body, text="Enter Profile Password")
         self.user_password = StringVar()
-        self.password_entry = ttk.Entry(self.body, textvariable=self.user_password)
+        self.password_entry = ttk.Entry(self.body, textvariable=self.user_password,
+                                        show='*')
 
         self.submit_profile = ttk.Button(self.body, text="Finish",
                                          command=lambda: self.exit_scene())
@@ -171,6 +172,7 @@ class SelectProfile:
                                      padding=preset.padding)
         self.set_frames()
         self.set_widgets()
+        self.displayed_profiles = []
 
     def set_frames(self):
         self.scene_frame.columnconfigure(0, weight=1)
@@ -191,16 +193,68 @@ class SelectProfile:
                               padding=preset.padding,
                               style='body.TFrame')
         self.body.columnconfigure(0, weight=1)
+        self.body.columnconfigure(1, weight=1)
         self.body.rowconfigure(0, weight=1)
+        self.body.rowconfigure(1, weight=2)
+        self.body.rowconfigure(2, weight=2)
+        self.body.rowconfigure(3, weight=1)
+
+        options_style = ttk.Style()
+        options_style.configure('options.TFrame', background='white')
+        self.right_body_frames = {'options': ttk.Frame(self.body), 'login': ttk.Frame(self.body)}
+
+        for frame in self.right_body_frames:
+            curr_frame = self.right_body_frames[frame]
+            curr_frame.configure(padding=preset.padding,
+                                 style='options.TFrame',
+                                 borderwidth=5,
+                                 relief='raised')
+            curr_frame.columnconfigure(0, weight=3)
+            curr_frame.columnconfigure(1, weight=1)
+            curr_frame.rowconfigure(0, weight=1)
 
     def set_widgets(self):
         self.scene_label = ttk.Label(self.header, text="Select Profile",
                                      background='grey')
+
+        self.option_widgets()
+        self.login_widgets()
+
+        #TODO: VVVV Change into a listbox widget VVVV
+        self.profile_tree = ttk.Treeview(self.body)
+
         self.exit_button = ttk.Button(self.body,
                                       text="Return to title screen",
                                       command=lambda: self.exit_scene())
 
+    def option_widgets(self):
+        option_frame = self.right_body_frames['options']
+        self.edit_profile_button = ttk.Button(option_frame)
+        self.create_profile_button = ttk.Button(option_frame)
+        self.delete_profile_button = ttk.Button(option_frame)
+
+    def login_widgets(self):
+        login_frame = self.right_body_frames['login']
+        self.user_entry = ttk.Entry(login_frame,)
+
+    def update_profiles(self):
+        """
+        backend call to generate list of saved profiles
+        """
+        db_path = "backend/tempdb.txt"
+        with open(db_path) as profile_file:
+            profiles = profile_file.readlines()
+        for profile in profiles:
+            profile = profile.strip('\n').split(',')
+            if profile not in self.displayed_profiles:
+                self.displayed_profiles.append(profile)
+                self.profile_tree.insert('', 'end', text=profile[0])
+
+    def update_scene(self):
+        self.update_profiles()
+
     def display_content(self):
+        self.update_scene()
         self.display_frames()
         self.display_widgets()
 
@@ -208,10 +262,15 @@ class SelectProfile:
         self.scene_frame.grid(column=0, row=0, sticky=N + E + S + W)
         self.header.grid(column=0, row=0, sticky=N + E + S + W)
         self.body.grid(column=0, row=1, sticky=N + E + S + W)
+        r_body = self.right_body_frames
+        r_body['options'].grid(column=1, row=1, sticky=N + E + S + W)
+        r_body['login'].grid(column=1, row=2, sticky=N + E + S + W)
 
     def display_widgets(self):
         self.scene_label.grid(column=0, row=0)
-        self.exit_button.grid(column=0, row=0)
+
+        self.profile_tree.grid(column=0, row=1, rowspan=2)
+        self.exit_button.grid(column=0, row=3, columnspan=2)
 
     def exit_scene(self):
         self.base.change_scene("title")
