@@ -75,16 +75,20 @@ class CreateProfile:
             5. return a dict
                 {network_ip: value, devices:[device0, device1, ...]}
         """
+        # TEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTMEP
         network_found = StringVar(value="TEST_NETWORK")
         self.found_label = ttk.Label(self.body, text="Detected Network:")
         self.network_name = ttk.Label(self.body,
                                       text=network_found.get())
+
         self.device_tree = ttk.Treeview(self.body,
                                         columns=("IP", "Security"))
         self.device_tree.column('#0', width=35)
         for data in self.device_tree['columns']:
             self.device_tree.column(data, width=55)
         self.device_tree.insert('', 'end', text='device0', values=('000.000.000.000', 'WK4P'))
+        # TEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTMEP
+
         self.exit_button = ttk.Button(self.body,
                                       text="Return to title screen",
                                       command=lambda: self.exit_scene(True))
@@ -126,6 +130,7 @@ class CreateProfile:
 
     def exit_scene(self, is_exit=False):
         if is_exit:
+            self.reset_widgets()
             self.base.change_scene("title")
             return
         # run checks on values
@@ -134,10 +139,16 @@ class CreateProfile:
             self.set_profile()
             # TODO: Create a home page with user info
             #       Update SelectProfile class to include new profile
+            self.reset_widgets()
             self.base.change_scene("title")
         else:
             # Indicate errors
             pass
+
+    def reset_widgets(self):
+        self.user_name = StringVar()
+        self.network_alias = StringVar()
+        self.user_password = StringVar()
 
     def verify_entries(self):
         name = self.user_name.get()

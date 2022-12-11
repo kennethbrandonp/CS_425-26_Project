@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from ui.gui.frontend.scenes.title.profile import *
+from os import path
 
 
 class TitleScreen:
@@ -22,7 +23,11 @@ class TitleScreen:
             "settings": None
         }
 
+        self.profile_db = "backend/tempdb.txt"
+
     def display_content(self):
+        self.update_scene()
+
         self.current_scene.display_frames()
         self.current_scene.display_widgets()
 
@@ -62,7 +67,8 @@ class TitleScreen:
 
         self.select_profile_button = ttk.Button(self.scene_frame,
                                                 text="Select Profile",
-                                                command=lambda: self.change_scene("selectprofile"))
+                                                command=lambda: self.change_scene("selectprofile"),
+                                                state="disabled")
 
         self.settings_button = ttk.Button(self.scene_frame,
                                           text="Settings",
@@ -71,3 +77,10 @@ class TitleScreen:
         self.exit_button = ttk.Button(self.scene_frame,
                                       text="Exit Program",
                                       command=self.root.quit)
+
+    def update_scene(self):
+        if self.can_select_profile():
+            self.select_profile_button.configure(state="!disabled")
+
+    def can_select_profile(self):
+        return path.exists(self.profile_db)
