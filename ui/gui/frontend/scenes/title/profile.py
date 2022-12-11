@@ -64,8 +64,19 @@ class CreateProfile:
                                          text="Network Configuration")
         self.configure_button = ttk.Button(self.body,
                                            text="Run Automatic Configuration",
-                                           command=None)
+                                           command=self.configure_network)
 
+        self.device_tree = ttk.Treeview(self.body, columns=('IP'))
+        self.device_tree.heading('#0', text='Device(s)')
+        self.device_tree.column('#0', width=65)
+        for item in self.device_tree['column']:
+            self.device_tree.heading(item, text='Device ' + item)
+            self.device_tree.column(item, width=25)
+
+        self.network_found = StringVar(value="DEFAULT")
+        self.found_label = ttk.Label(self.body, text="Detected Network:")
+        self.network_name = ttk.Label(self.body,
+                                      text=self.network_found.get())
         """
         Call back-end to:
             1. scan network
@@ -75,19 +86,6 @@ class CreateProfile:
             5. return a dict
                 {network_ip: value, devices:[device0, device1, ...]}
         """
-        # TEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTMEP
-        network_found = StringVar(value="TEST_NETWORK")
-        self.found_label = ttk.Label(self.body, text="Detected Network:")
-        self.network_name = ttk.Label(self.body,
-                                      text=network_found.get())
-
-        self.device_tree = ttk.Treeview(self.body,
-                                        columns=("IP", "Security"))
-        self.device_tree.column('#0', width=35)
-        for data in self.device_tree['columns']:
-            self.device_tree.column(data, width=55)
-        self.device_tree.insert('', 'end', text='device0', values=('000.000.000.000', 'WK4P'))
-        # TEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTMEP
 
         self.exit_button = ttk.Button(self.body,
                                       text="Return to title screen",
@@ -124,6 +122,19 @@ class CreateProfile:
         # TODO: Fix table headers not showing up
         self.device_tree.grid(column=1, row=2, rowspan=2, sticky=N + E + W)
         self.exit_button.grid(column=1, row=4)
+
+    def configure_network(self):
+        self.root.backend.scan_network()
+        self.network_metadata = self.root.backend.get_devices()
+        host_found = self.network_metadata["host"]
+        self.network_found = host_found[0]
+        devices_found = self.network_metadata["devices"]
+
+        self.network_name.configure(text=self.network_found)
+        for device in devices_found:
+            self.device_tree.insert('', 'end', text=device[0], values=device[2])
+        print(1, self.network_metadata['devices'][0])
+        print(2, self.network_metadata['devices'])
 
     def remove_content(self):
         self.scene_frame.grid_remove()
@@ -166,12 +177,19 @@ class CreateProfile:
 
     def set_profile(self):
         database_path = "backend/tempdb.txt"
+        network_path = "backend/tempnetworkdb.txt"
         database = open(database_path, 'a')
         database.write(self.user_name.get() + ',')
         database.write(self.network_alias.get() + ',')
-        database.write(self.user_password.get())
-        database.write('\n')
+        database.write(self.user_password.get() + '\n')
         database.close()
+        network = open(network_path, 'a')
+        network.write(self.network_metadata["host"][0] + ',')
+        network.write(self.network_metadata["host"][2][0] + '\n')
+        for data in self.network_metadata["devices"]:
+            network.write(data[0] + ',')
+            network.write(data[2][0] + '\n')
+        network.close()
 
 
 class SelectProfile:
@@ -322,7 +340,7 @@ class SelectProfile:
         self.scene_label.grid(column=0, row=0)
 
         # Left Body
-        self.profile_listbox.grid(column=0, row=1, rowspan=2, sticky=N+S)
+        self.profile_listbox.grid(column=0, row=1, rowspan=2, sticky=N + S)
         # Right Body
         self.display_options()
         self.display_login()
@@ -337,10 +355,10 @@ class SelectProfile:
         self.login_label.grid(column=0, row=0, columnspan=2)
 
         self.enter_user.grid(column=0, row=1)
-        self.user_entry.grid(column=1, row=1, sticky=E+W)
+        self.user_entry.grid(column=1, row=1, sticky=E + W)
 
         self.enter_password.grid(column=0, row=2)
-        self.password_entry.grid(column=1, row=2, sticky=E+W)
+        self.password_entry.grid(column=1, row=2, sticky=E + W)
 
         self.submit.grid(column=0, columnspan=2, row=3)
 

@@ -1,8 +1,9 @@
 import constants as preset
-from frontend.scenes.title.title import *
-from frontend.scenes.home.home import *
-from frontend.scenes.security.security import *
-from frontend.scenes.settings.settings import *
+from frontend.scenes.title.title import TitleScreen
+from frontend.scenes.home.home import Home
+from frontend.scenes.security.security import Security
+from frontend.scenes.settings.settings import Settings
+from tkinter import ttk
 
 
 class SceneManager:
