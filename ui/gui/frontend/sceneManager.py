@@ -1,8 +1,8 @@
 import constants as preset
-from ui.gui.frontend.scenes.title.title import *
-from ui.gui.frontend.scenes.home.home import *
-from ui.gui.frontend.scenes.security.security import *
-from ui.gui.frontend.scenes.settings.settings import *
+from frontend.scenes.title.title import *
+from frontend.scenes.home.home import *
+from frontend.scenes.security.security import *
+from frontend.scenes.settings.settings import *
 
 
 class SceneManager:

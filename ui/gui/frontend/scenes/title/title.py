@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from ui.gui.frontend.scenes.title.profile import *
+from frontend.scenes.title.profile import *
 from os import path
 
 
