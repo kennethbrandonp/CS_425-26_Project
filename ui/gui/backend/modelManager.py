@@ -1,6 +1,6 @@
 from backend.networks import NetworkManager
 from backend.profiles import ProfileManager
-from networkIpAddresses import Network
+from backend.networkIpAddresses import Network
 
 class ModelManager:
     def __init__(self):
