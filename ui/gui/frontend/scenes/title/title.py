@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from frontend.scenes.title.profile import *
+from frontend.scenes.settings.settings import *
 from os import path
 
 
@@ -19,7 +20,7 @@ class TitleScreen:
             "title": self,
             "createprofile": CreateProfile(self),
             "selectprofile": SelectProfile(self),
-            "settings": None
+            "settings": Settings(self)
         }
 
         self.profile_db = "backend/tempdb.txt"
@@ -71,7 +72,7 @@ class TitleScreen:
 
         self.settings_button = ttk.Button(self.scene_frame,
                                           text="Settings",
-                                          command=None)
+                                          command=lambda: self.change_scene("settings"))
 
         self.exit_button = ttk.Button(self.scene_frame,
                                       text="Exit Program",
